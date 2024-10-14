@@ -65,7 +65,7 @@ with source as (
         distinct
         anonymous_id,
         user_id,
-        cast(min(timestamp) over (partition by anonymous_id) as datetime) as first_identified_datetime,
+        min(timestamp) over (partition by anonymous_id) as first_identified_datetime,
         row_number() over (partition by anonymous_id order by timestamp desc) as sequence_number
     from source
     where anonymous_id is not null and user_id is not null
@@ -96,8 +96,8 @@ select
 anonymous_id.anonymous_id,
 coalesce(known_email.email, unknown_email.email) as email,
 known_user.user_id,
-cast(anonymous_id.first_seen_at as datetime) as first_seen_at,
-cast(anonymous_id.last_seen_at as datetime) as last_seen_at,
+anonymous_id.first_seen_at as first_seen_at,
+anonymous_id.last_seen_at as last_seen_at,
 known_user.first_identified_datetime,
 case
     when known_user.first_identified_datetime is not null
